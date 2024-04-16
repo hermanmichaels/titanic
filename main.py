@@ -7,7 +7,6 @@ import torch.optim as optim
 from sklearn.compose import ColumnTransformer
 from torch.optim.lr_scheduler  import MultiStepLR
 
-import wandb
 from data import prepare_data, prepare_test_data, prepare_train_data
 from model import MLP
 from utils import set_seeds
@@ -72,7 +71,6 @@ def train() -> tuple[ColumnTransformer, torch.nn.Module]:
         print(
             f"Epoch [{epoch + 1}/{NUM_EPOCHS}], Loss: {loss:.4f}, Accuracy: {acc:.4f}"
         )
-        wandb.log({"accuracy": acc, "loss": loss})
 
         if epoch % 10 == 9:
             # Evaluation on the val set
@@ -85,7 +83,6 @@ def train() -> tuple[ColumnTransformer, torch.nn.Module]:
 
                 acc = correct / len(val_loader)
                 print(f"Accuracy on val set: {acc:.4f}")
-                wandb.log({"val_accuracy": acc})
 
                 if acc > best_val_acc:
                     best_val_acc = acc
@@ -100,15 +97,6 @@ def train() -> tuple[ColumnTransformer, torch.nn.Module]:
 def main():
     # Make experiments reproducible
     set_seeds(RANDOM_SEED)
-
-    # Init W&B
-    wandb.init(
-        project="kaggle-titanic",
-        config={
-            "learning_rate": LR,
-            "epochs": NUM_EPOCHS,
-        },
-    )
 
     # Train the model
     pipeline, model = train()
